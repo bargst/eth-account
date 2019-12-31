@@ -6,7 +6,7 @@ from eth_utils import (
     to_int,
 )
 
-from eth_account.internal.transactions import (
+from eth_account._utils.transactions import (
     ChainAwareUnsignedTransaction,
     UnsignedTransaction,
     encode_transaction,
@@ -16,6 +16,11 @@ from eth_account.internal.transactions import (
 
 CHAIN_ID_OFFSET = 35
 V_OFFSET = 27
+
+# signature versions
+PERSONAL_SIGN_VERSION = b'E'  # Hex value 0x45
+INTENDED_VALIDATOR_SIGN_VERSION = b'\x00'  # Hex value 0x00
+STRUCTURED_DATA_SIGN_VERSION = b'\x01'  # Hex value 0x01
 
 
 def sign_transaction_dict(eth_key, transaction_dict):
@@ -39,19 +44,8 @@ def sign_transaction_dict(eth_key, transaction_dict):
     return (v, r, s, encoded_transaction)
 
 
-# watch here for updates to signature format: https://github.com/ethereum/EIPs/issues/191
-def signature_wrapper(message, version=b'E'):
-    assert isinstance(message, bytes)
-    if version == b'E':
-        preamble = b'\x19Ethereum Signed Message:\n'
-        size = str(len(message)).encode('utf-8')
-        return preamble + size + message
-    else:
-        raise NotImplementedError("Only the 'Ethereum Signed Message' preamble is supported")
-
-
 def hash_of_signed_transaction(txn_obj):
-    '''
+    """
     Regenerate the hash of the signed transaction object.
 
     1. Infer the chain ID from the signature
@@ -63,7 +57,7 @@ def hash_of_signed_transaction(txn_obj):
     See details at https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md
 
     :return: the hash of the provided transaction, to be signed
-    '''
+    """
     (chain_id, _v) = extract_chain_id(txn_obj.v)
     unsigned_parts = strip_signature(txn_obj)
     if chain_id is None:
@@ -75,10 +69,10 @@ def hash_of_signed_transaction(txn_obj):
 
 
 def extract_chain_id(raw_v):
-    '''
+    """
     Extracts chain ID, according to EIP-155
     @return (chain_id, v)
-    '''
+    """
     above_id_offset = raw_v - CHAIN_ID_OFFSET
     if above_id_offset < 0:
         if raw_v in {0, 1}:

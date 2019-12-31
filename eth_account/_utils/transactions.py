@@ -17,7 +17,6 @@ from eth_utils.curried import (
     hexstr_if_str,
     is_0x_prefixed,
     is_bytes,
-    is_checksum_address,
     is_integer,
     is_string,
     to_bytes,
@@ -29,6 +28,12 @@ from rlp.sedes import (
     big_endian_int,
     binary,
 )
+
+from .validation import (
+    is_valid_address,
+)
+
+VALID_EMPTY_ADDRESSES = {None, b'', ''}
 
 
 def serializable_unsigned_transaction_from_dict(transaction_dict):
@@ -64,12 +69,10 @@ def is_int_or_prefixed_hexstr(val):
 
 
 def is_empty_or_checksum_address(val):
-    if val in {None, b'', ''}:
-        return True
-    elif is_checksum_address(val):
+    if val in VALID_EMPTY_ADDRESSES:
         return True
     else:
-        return False
+        return is_valid_address(val)
 
 
 def is_none(val):
