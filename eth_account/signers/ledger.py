@@ -23,7 +23,7 @@ from eth_account import (
 from eth_account.datastructures import (
     AttributeDict,
 )
-from eth_account.internal.transactions import (
+from eth_account._utils.transactions import (
     encode_transaction,
     serializable_unsigned_transaction_from_dict,
 )
