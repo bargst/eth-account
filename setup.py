@@ -5,7 +5,10 @@ from setuptools import (
     find_packages,
 )
 
-extras_require = {
+extras_require={
+    'ledger': [
+        "hidapi>=0.7.99",
+    ],
     'test': [
         "hypothesis>=4.18.0,<5",
         "pytest>=4.4.0,<5",
