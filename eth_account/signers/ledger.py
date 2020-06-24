@@ -444,3 +444,14 @@ class LedgerAccount(BaseAccount):
         (data_sign, major_version, minor_version, patch_version) = struct.unpack('>?BBB', result)
 
         return (data_sign, major_version, minor_version, patch_version)
+
+    def sign_message(self, signable_message):
+        """
+        TODO
+        :param signable_message:
+        :return:
+        """
+        return self.defunctSignMessage(signable_message)
+
+    def sign_transaction(self, transaction_dict):
+        return self.signTransaction(transaction_dict)
